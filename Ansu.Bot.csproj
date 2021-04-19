@@ -11,8 +11,13 @@
 		<PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0" />
 		<PackageReference Include="StackExchange.Redis" Version="2.2.4" />
 		<PackageReference Include="System.Linq" Version="4.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Include="%28copy%29.env-example" />
+	</ItemGroup>
 	<ItemGroup>
 		<None Update="config.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -25,6 +30,11 @@
 		</Content>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Config\" />
+	  <Folder Include="Config\Models\" />
+	  <Folder Include="EventHandlers\" />
+	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(OS)' != 'Windows_NT' ">
 	  <Exec Command="git rev-parse --short main &gt; &quot;$(OutDir)/CommitHash.txt&quot;&#xD;&#xA;git log --pretty=format:&quot;%25s&quot; -n 1 &gt; &quot;$(OutDir)/CommitMessage.txt&quot;&#xD;&#xA;git log --pretty=format:&quot;%25ci&quot; -n 1 &gt; &quot;$(OutDir)/CommitTime.txt&quot;&#xD;&#xA;" />
 	</Target>

@@ -1,4 +1,6 @@
-﻿using DSharpPlus;
+﻿using Ansu.Bot.EventHandlers;
+using Ansu.Redis.Client.Interfaces;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -9,14 +11,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Cliptok.Modules
+namespace Ansu.Modules
 {
 
     public class ModCmds : BaseCommandModule
     {
         public const char dehoistCharacter = '\u17b5';
+        private readonly IRedisClient _redisClient;
 
-    public static async Task<bool> BanFromServerAsync(ulong targetUserId, string reason, ulong moderatorId, DiscordGuild guild, int deleteDays = 7, DiscordChannel channel = null, TimeSpan banDuration = default, bool appealable = false)
+        public ModCmds(IRedisClient redisClient)
+        {
+            _redisClient = redisClient;
+        }
+
+        public static async Task<bool> BanFromServerAsync(ulong targetUserId, string reason, ulong moderatorId, DiscordGuild guild, int deleteDays = 7, DiscordChannel channel = null, TimeSpan banDuration = default, bool appealable = false)
         {
             DiscordUser naughtyUser = await Program.discord.GetUserAsync(targetUserId);
             bool permaBan = false;
@@ -104,7 +112,7 @@ namespace Cliptok.Modules
             await Program.db.HashDeleteAsync("bans", targetUserId);
         }
 
-        public static async Task<bool> CheckBansAsync()
+        public async Task<bool> CheckBansAsync()
         {
             DiscordChannel logChannel = await Program.discord.GetChannelAsync(Program.cfgjson.LogChannel);
             Dictionary<string, MemberPunishment> banList = Program.db.HashGetAll("bans").ToDictionary(
@@ -563,7 +571,7 @@ namespace Cliptok.Modules
 
             foreach (DiscordMember discordMember in discordMembers)
             {
-                bool success = await Program.CheckAndDehoistMemberAsync(discordMember);
+                bool success = await BotEventHandler.CheckAndDehoistMemberAsync(discordMember);
                 if (!success)
                     failedCount++;
             }
@@ -669,24 +677,23 @@ namespace Cliptok.Modules
                 OriginalTime = DateTime.Now
             };
 
-            await Program.db.ListRightPushAsync("reminders", JsonConvert.SerializeObject(reminderObject));
+            await _redisClient.PushListRight("reminders", reminderObject);
             await ctx.Channel.SendMessageAsync($"{Program.cfgjson.Emoji.Success} I'll try my best to remind you about that at: `{t}` (In roughly **{Warnings.TimeToPrettyFormat(t.Subtract(ctx.Message.Timestamp.DateTime), false)}**)");
         }
 
-        public static async Task<bool> CheckRemindersAsync(bool includeRemutes = false)
+        public async Task<bool> CheckRemindersAsync(bool includeRemutes = false)
         {
             bool success = false;
-            foreach (var reminder in Program.db.ListRange("reminders", 0, -1))
+            foreach (var reminder in await _redisClient.GetListAt<Reminder>("reminders", 0, -1))
             {
                 var guild = await Program.discord.GetGuildAsync(Program.cfgjson.ServerID);
-                var reminderObject = JsonConvert.DeserializeObject<Reminder>(reminder);
-                if (reminderObject.ReminderTime <= DateTime.Now)
+                if (reminder.ReminderTime <= DateTime.Now)
                 {
-                    var user = await Program.discord.GetUserAsync(reminderObject.UserID);
+                    var user = await Program.discord.GetUserAsync(reminder.UserID);
                     DiscordChannel channel = null;
                     try
                     {
-                        channel = await Program.discord.GetChannelAsync(reminderObject.ChannelID);
+                        channel = await Program.discord.GetChannelAsync(reminder.ChannelID);
                     }
                     catch
                     {
@@ -694,7 +701,7 @@ namespace Cliptok.Modules
                     }
                     if (channel == null)
                     {
-                        var member = await guild.GetMemberAsync(reminderObject.UserID);
+                        var member = await guild.GetMemberAsync(reminder.UserID);
                         if (Warnings.GetPermLevel(member) >= ServerPermLevel.TrialMod)
                         {
                             channel = await Program.discord.GetChannelAsync(Program.cfgjson.HomeChannel);
@@ -705,25 +712,25 @@ namespace Cliptok.Modules
                         }
                     }
 
-                    await Program.db.ListRemoveAsync("reminders", reminder);
+                    await Program.db.ListRemoveAsync("reminders", JsonConvert.SerializeObject(reminder));
                     success = true;
 
                     var embed = new DiscordEmbedBuilder()
-                    .WithDescription(reminderObject.ReminderText)
+                    .WithDescription(reminder.ReminderText)
                     .WithColor(new DiscordColor(0xD084))
                     .WithFooter(
                         "Reminder was set",
                         null
                     )
-                    .WithTimestamp(reminderObject.OriginalTime)
+                    .WithTimestamp(reminder.OriginalTime)
                     .WithAuthor(
-                        $"Reminder from {Warnings.TimeToPrettyFormat(DateTime.Now.Subtract(reminderObject.OriginalTime), true)}",
+                        $"Reminder from {Warnings.TimeToPrettyFormat(DateTime.Now.Subtract(reminder.OriginalTime), true)}",
                         null,
                         user.AvatarUrl
                     )
-                    .AddField("Context", $"[`Jump to context`]({reminderObject.MessageLink})", true);
+                    .AddField("Context", $"[`Jump to context`]({reminder.MessageLink})", true);
 
-                    await channel.SendMessageAsync($"<@!{reminderObject.UserID}>, you asked to be reminded of something:", embed);
+                    await channel.SendMessageAsync($"<@!{reminder.UserID}>, you asked to be reminded of something:", embed);
                 }
 
             }
@@ -738,6 +745,13 @@ namespace Cliptok.Modules
         [HomeServer, RequireHomeserverPerm(ServerPermLevel.Mod)]
         class DebugCmds : BaseCommandModule
         {
+            private readonly ModCmds _modCmds;
+
+            public DebugCmds(ModCmds modCmds)
+            {
+                _modCmds = modCmds;
+            }
+
             [Command("mutes")]
             [Description("Debug the list of mutes.")]
             public async Task MuteDebug(CommandContext ctx)
@@ -810,9 +824,9 @@ namespace Cliptok.Modules
             public async Task Refresh(CommandContext ctx)
             {
                 var msg = await ctx.RespondAsync("Checking for pending unmutes and unbans...");
-                bool bans = await CheckBansAsync();
+                bool bans = await _modCmds.CheckBansAsync();
                 bool mutes = await Mutes.CheckMutesAsync(true);
-                bool reminders = await ModCmds.CheckRemindersAsync();
+                bool reminders = await _modCmds.CheckRemindersAsync();
                 await msg.ModifyAsync($"Unban check result: `{bans.ToString()}`\nUnmute check result: `{mutes.ToString()}`\nReminders check result: `{reminders}`");
             }
         }

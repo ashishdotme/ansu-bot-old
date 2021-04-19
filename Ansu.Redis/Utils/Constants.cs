@@ -3,8 +3,6 @@ namespace Ansu.Redis.Utils
 {
     public class Constants
     {
-        public Constants()
-        {
-        }
+        public static readonly string RedisTimeout = "10";
     }
 }

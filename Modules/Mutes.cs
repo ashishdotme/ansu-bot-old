@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Cliptok.Modules
+namespace Ansu.Modules
 {
 
     public static class Mutes

@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cliptok", "Cliptok.csproj", "{A274D298-E47C-49CA-B94B-A09CC3503E81}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ansu.Bot", "Ansu.Bot.csproj", "{A274D298-E47C-49CA-B94B-A09CC3503E81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ansu.Redis", "Ansu.Redis\Ansu.Redis.csproj", "{57CF7DED-7B88-4A1F-83DE-7E7883DBF35C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{A274D298-E47C-49CA-B94B-A09CC3503E81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A274D298-E47C-49CA-B94B-A09CC3503E81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A274D298-E47C-49CA-B94B-A09CC3503E81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57CF7DED-7B88-4A1F-83DE-7E7883DBF35C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57CF7DED-7B88-4A1F-83DE-7E7883DBF35C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57CF7DED-7B88-4A1F-83DE-7E7883DBF35C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57CF7DED-7B88-4A1F-83DE-7E7883DBF35C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Cliptok
+namespace Ansu
 {
     public class UserWarning
     {
@@ -197,8 +197,11 @@ namespace Cliptok
         [JsonProperty("host")]
         public string Host { get; private set; }
 
+        [JsonProperty("password")]
+        public string Password { get; private set; }
+
         [JsonProperty("port")]
-        public ulong Port { get; private set; }
+        public string Port { get; private set; }
     }
 
     public class UserRoleConfig
