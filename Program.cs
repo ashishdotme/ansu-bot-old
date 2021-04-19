@@ -1,15 +1,21 @@
 ﻿using Ansu.Bot.Config.Models;
+using Ansu.Bot.EventHandlers;
 using Ansu.Modules;
 using Ansu.Redis.Client.Impl;
 using Ansu.Redis.Client.Interfaces;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,43 +23,44 @@ namespace Ansu
 {
     class Program : BaseCommandModule
     {
+        private InteractivityExtension Interactivity { get; }
+        public IServiceProvider services { get; set; }
         public static DiscordClient discord;
         static CommandsNextExtension commands;
         public static Random rnd = new Random();
         public static ConfigJson cfgjson;
         public static ConnectionMultiplexer redis;
         public static IDatabase db;
+        private BotEventHandler _events;
 
-
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
+            var prog = new Program();
+            prog.MainAsync().GetAwaiter().GetResult();
         }
 
-        static async Task MainAsync(string[] _)
+        public async Task MainAsync()
         {
-            ServiceCollection services = new ServiceCollection();
-            services.AddLogging(o => o.AddConsole());
-
 #if DEBUG
             LogLevel MinimumLogLevel = LogLevel.Debug;
 #else
             LogLevel MinimumLogLevel = LogLevel.Error;
 #endif
-            services.AddLogging(o => o.SetMinimumLevel(MinimumLogLevel));
-
-            services.AddSingleton<IRedisSettings>(config => new RedisSettings()
-                {
-                    Host = cfgjson.Redis.Host,
-                    Port = cfgjson.Redis.Port,
-                    Password = cfgjson.Redis.Password,
-                    Database = "0",
-                    Timeout = "0"
-                });
-            services.AddTransient<ModCmds>();
-            services.AddTransient<IRedisClient, RedisClient>();
-
-            await using var serviceProvider = services.BuildServiceProvider();
+            services = new ServiceCollection()
+            .AddLogging(o => o.AddConsole())
+            .AddLogging(o => o.SetMinimumLevel(MinimumLogLevel))
+            .AddSingleton<IRedisSettings>(config => new RedisSettings()
+            {
+                Host = cfgjson.Redis.Host,
+                Port = cfgjson.Redis.Port,
+                Password = cfgjson.Redis.Password,
+                Database = "1",
+                Timeout = "0"
+            })
+            .AddTransient<DiscordClient>()
+            .AddTransient<ModCmds>()
+            .AddSingleton<IRedisClient, RedisClient>()
+            .BuildServiceProvider(true);
 
             string token;
             var json = "";
@@ -98,10 +105,11 @@ namespace Ansu
                 Intents = DiscordIntents.All
             });
 
+
             commands = discord.UseCommandsNext(new CommandsNextConfiguration
             {
                 StringPrefixes = cfgjson.Core.Prefixes,
-                Services = serviceProvider
+                Services = services
             }); ;
 
             commands.RegisterCommands<Warnings>();
@@ -109,13 +117,14 @@ namespace Ansu
             commands.RegisterCommands<UserRoleCmds>();
             commands.RegisterCommands<ModCmds>();
 
+            AttachEvents();
             try
             {
                 await discord.ConnectAsync();
                 while (true)
                 {
                     await Task.Delay(10000);
-
+                    
                 }
             }
             catch (Exception e)
@@ -124,7 +133,18 @@ namespace Ansu
             }
 
         }
+
+        private void AttachEvents()
+        {
+            var _redisClient = services.GetService<IRedisClient>();
+            var _modCmds = services.GetService<ModCmds>();
+            _events = new BotEventHandler(_redisClient, _modCmds, discord)
+            {
+            };
+        }
+
     }
+
 
 
 }

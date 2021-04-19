@@ -26,7 +26,7 @@ namespace Ansu.Bot.EventHandlers
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-        public BotEventHandler(IRedisClient redisClient, DiscordClient client, ModCmds modCmds)
+        public BotEventHandler(IRedisClient redisClient, ModCmds modCmds, DiscordClient client)
         {
             _redisClient = redisClient;
             _modCmds = modCmds;
@@ -47,7 +47,7 @@ namespace Ansu.Bot.EventHandlers
 
             Mutes.CheckMutesAsync();
             _modCmds.CheckBansAsync();
-            //_modCmds.CheckRemindersAsync();
+            _modCmds.CheckRemindersAsync();
 
             string commitHash = "aaaaaaa";
             string commitMessage = "N/A";
