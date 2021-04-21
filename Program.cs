@@ -70,9 +70,9 @@ namespace Ansu
             })
             .AddSingleton<IMongoSettings>(config => new MongoSettings()
             {
-                ConnectionString = "mongodb://ashish:Ashish20201@db2.prod.ashish.me:27017",
-                Database = "test2",
-                Collection = "guild"
+                ConnectionString = cfgjson.MongoDB.ConnectionString,
+                Database = cfgjson.MongoDB.Database,
+                Collection = cfgjson.MongoDB.Collection
             })
             .AddTransient<ModCmds>()
             .AddSingleton<IRedisClient, RedisClient>()

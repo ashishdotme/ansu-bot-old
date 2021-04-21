@@ -52,6 +52,9 @@ namespace Ansu
         [JsonProperty("redis")]
         public RedisConfig Redis { get; private set; }
 
+        [JsonProperty("mongoDB")]
+        public MongoConfig MongoDB { get; private set; }
+
         [JsonProperty("trialModRole")]
         public ulong TrialModRole { get; private set; }
 
@@ -205,6 +208,18 @@ namespace Ansu
 
         [JsonProperty("port")]
         public string Port { get; private set; }
+    }
+
+    public class MongoConfig
+    {
+        [JsonProperty("connectionString")]
+        public string ConnectionString { get; private set; }
+
+        [JsonProperty("database")]
+        public string Database { get; private set; }
+
+        [JsonProperty("collection")]
+        public string Collection { get; private set; }
     }
 
     public class UserRoleConfig
