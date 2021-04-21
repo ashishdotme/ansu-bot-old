@@ -18,6 +18,17 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Ansu.Repository;
+using Ansu.Repository.Interfaces;
+using Ansu.Service.Interfaces;
+using Ansu.Bot.Service;
+using Ansu.MongoDB.Client.Impl;
+using Ansu.MongoDB.Client.Interfaces;
+using MongoSettings = Ansu.Bot.Config.Models.MongoSettings;
+using Ansu.MongoDB.Client;
+using Ansu.Bot.Service.Models;
+using Ansu.Service.Models;
+using System.Collections.Generic;
 
 namespace Ansu
 {
@@ -57,9 +68,18 @@ namespace Ansu
                 Database = "1",
                 Timeout = "0"
             })
-            .AddTransient<DiscordClient>()
+            .AddSingleton<IMongoSettings>(config => new MongoSettings()
+            {
+                ConnectionString = "mongodb://ashish:Ashish20201@db2.prod.ashish.me:27017",
+                Database = "test2",
+                Collection = "guild"
+            })
             .AddTransient<ModCmds>()
             .AddSingleton<IRedisClient, RedisClient>()
+            .AddTransient<IGuildRepository, GuildRepository>()
+            .AddTransient<IGuildService, GuildService>()
+            .AddMongoCustomClient()
+            .AddTransient<IMongoFilter, MongoFilter>()
             .BuildServiceProvider(true);
 
             string token;
@@ -117,34 +137,20 @@ namespace Ansu
             commands.RegisterCommands<UserRoleCmds>();
             commands.RegisterCommands<ModCmds>();
 
-            AttachEvents();
-            try
-            {
-                await discord.ConnectAsync();
-                while (true)
-                {
-                    await Task.Delay(10000);
-                    
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
 
+            AddEvents();
+            await discord.ConnectAsync();
+            await Task.Delay(-1);
         }
 
-        private void AttachEvents()
+        private void AddEvents()
         {
             var _redisClient = services.GetService<IRedisClient>();
+            var _guildService = services.GetService<IGuildService>();
             var _modCmds = services.GetService<ModCmds>();
-            _events = new BotEventHandler(_redisClient, _modCmds, discord)
-            {
-            };
+            _events = new BotEventHandler(_redisClient, _modCmds, discord, _guildService);
         }
 
     }
-
-
 
 }

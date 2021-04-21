@@ -43,6 +43,9 @@ namespace Ansu
 
     public struct ConfigJson
     {
+        [JsonProperty("name")]
+        public string Name { get; private set; }
+
         [JsonProperty("core")]
         public CoreConfig Core { get; private set; }
 

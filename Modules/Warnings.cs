@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using Ansu.Bot.EventHandlers;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -176,7 +177,7 @@ namespace Ansu.Modules
                 // We failed to DM the user, this isn't important to note.
             }
 
-            //await BotEventHandler.logChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Warning} New warning for {targetUser.Mention}!", await FancyWarnEmbedAsync(warning, true, 0xFEC13D, false));
+            await BotEventHandler.logChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Warning} New warning for {targetUser.Mention}!", await FancyWarnEmbedAsync(warning, true, 0xFEC13D, false));
 
             // automute handling
             var warningsOutput = Program.db.HashGetAll(targetUser.Id.ToString()).ToDictionary(
@@ -489,8 +490,8 @@ namespace Ansu.Modules
                 DelWarning(warning);
                 await ctx.RespondAsync($"{Program.cfgjson.Emoji.Deleted} Successfully deleted warning `{Pad(warnId)}` (belonging to {targetUser.Mention})");
 
-                //await BotEventHandler.logChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Deleted} Warning deleted:" +
-                  //  $"`{Pad(warnId)}` (belonging to {targetUser.Mention}, deleted by {ctx.Member.Username}#{ctx.Member.Discriminator})", await FancyWarnEmbedAsync(warning, true, 0xf03916));
+                await BotEventHandler.logChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Deleted} Warning deleted:" +
+                    $"`{Pad(warnId)}` (belonging to {targetUser.Mention}, deleted by {ctx.Member.Username}#{ctx.Member.Discriminator})", await FancyWarnEmbedAsync(warning, true, 0xf03916));
             }
         }
 
@@ -560,8 +561,8 @@ namespace Ansu.Modules
                 EditWarning(targetUser, warnId, ctx.User, newReason, MessageLink(msg));
                 await msg.ModifyAsync($"{Program.cfgjson.Emoji.Information} Successfully edited warning `{Pad(warnId)}` (belonging to {targetUser.Mention})",
                     await FancyWarnEmbedAsync(GetWarning(targetUser.Id, warnId)));
-                //await BotEventHandler.logChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Information} Warning edited:" +
-                   // $"`{Pad(warnId)}` (belonging to {targetUser.Mention})", await FancyWarnEmbedAsync(GetWarning(targetUser.Id, warnId), true));
+                await BotEventHandler.logChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Information} Warning edited:" +
+                    $"`{Pad(warnId)}` (belonging to {targetUser.Mention})", await FancyWarnEmbedAsync(GetWarning(targetUser.Id, warnId), true));
             }
         }
 

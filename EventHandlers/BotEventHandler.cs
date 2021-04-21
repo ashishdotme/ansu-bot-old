@@ -5,18 +5,26 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Ansu.Bot.Service.Models;
 using Ansu.Modules;
 using Ansu.Redis.Client.Interfaces;
+using Ansu.Repository.Converters;
+using Ansu.Repository.Models;
+using Ansu.Service.Interfaces;
+using Ansu.Service.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.Logging;
 
 namespace Ansu.Bot.EventHandlers
 {
     public class BotEventHandler
     {
+        private static EventId EventId { get; } = new(1000, Program.cfgjson.Name);
         private readonly DiscordClient _client;
         private readonly IRedisClient _redisClient;
+        private readonly IGuildService _guildService;
         private readonly ModCmds _modCmds;
         public static DiscordChannel logChannel;
         public static DiscordChannel badMsgLog;
@@ -26,14 +34,16 @@ namespace Ansu.Bot.EventHandlers
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-        public BotEventHandler(IRedisClient redisClient, ModCmds modCmds, DiscordClient client)
+        public BotEventHandler(IRedisClient redisClient, ModCmds modCmds, DiscordClient client, IGuildService guildService)
         {
             _redisClient = redisClient;
+            _guildService = guildService;
             _modCmds = modCmds;
             _client = client;
             _client.Ready += OnReady;
             _client.MessageCreated += MessageCreated;
             _client.GuildMemberAdded += GuildMemberAdded;
+            _client.GuildCreated += GuildCreated;
             _client.MessageReactionAdded += OnReaction;
             _client.GuildMemberUpdated += GuildMemberUpdated;
             _client.UserUpdated += UserUpdated;
@@ -41,54 +51,65 @@ namespace Ansu.Bot.EventHandlers
 
         async Task OnReady(DiscordClient client, ReadyEventArgs e)
         {
+            client.Logger.LogInformation($"Logged in as {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}");
             Console.WriteLine($"Logged in as {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}");
-            logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
-            badMsgLog = await _client.GetChannelAsync(Program.cfgjson.InvestigationsChannelId);
+            //logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
+            //badMsgLog = await _client.GetChannelAsync(Program.cfgjson.InvestigationsChannelId);
 
-            Mutes.CheckMutesAsync();
-            _modCmds.CheckBansAsync();
-            _modCmds.CheckRemindersAsync();
+            //Mutes.CheckMutesAsync();
+            //_modCmds.CheckBansAsync();
+            //_modCmds.CheckRemindersAsync();
 
-            string commitHash = "aaaaaaa";
-            string commitMessage = "N/A";
-            string commitTime = "0000-00-00 00:00:00 +0000";
-            if (File.Exists("CommitHash.txt"))
-            {
-                using var sr = new StreamReader("CommitHash.txt");
-                commitHash = sr.ReadToEnd();
-            }
+            //string commitHash = "aaaaaaa";
+            //string commitMessage = "N/A";
+            //string commitTime = "0000-00-00 00:00:00 +0000";
+            //if (File.Exists("CommitHash.txt"))
+            //{
+            //    using var sr = new StreamReader("CommitHash.txt");
+            //    commitHash = sr.ReadToEnd();
+            //}
 
-            if (File.Exists("CommitMessage.txt"))
-            {
-                using var sr = new StreamReader("CommitMessage.txt");
-                commitMessage = sr.ReadToEnd();
-            }
+            //if (File.Exists("CommitMessage.txt"))
+            //{
+            //    using var sr = new StreamReader("CommitMessage.txt");
+            //    commitMessage = sr.ReadToEnd();
+            //}
 
-            if (File.Exists("CommitTime.txt"))
-            {
-                using var sr = new StreamReader("CommitTime.txt");
-                commitTime = sr.ReadToEnd();
-            }
+            //if (File.Exists("CommitTime.txt"))
+            //{
+            //    using var sr = new StreamReader("CommitTime.txt");
+            //    commitTime = sr.ReadToEnd();
+            //}
+            //Guild guild = new Guild();
+            //guild.Id = client.CurrentUser.Id;
+            //guild.OwnerId = client.CurrentUser.Id;
+            //guild.Configuration = new GuildConfiguration
+            //{
+            //    Moderation = new ModerationOptions
+            //    {
+            //        MassEmojiThreshold = 6,
+            //        Blacklist = new List<string>()
+            //    }
+            //};
+            //var cliptokChannel = await client.GetChannelAsync(Program.cfgjson.HomeChannel);
+            //cliptokChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Connected} Cliptok connected successfully!\n\n" +
+            //    $"**Version**: `{commitHash}`\n" +
+            //    $"**Version timestamp**: `{commitTime}`\n**Framework**: `{RuntimeInformation.FrameworkDescription}`\n**Platform**: `{RuntimeInformation.OSDescription}`\n\n" +
+            //    $"Most recent commit message:\n" +
+            //    $"```\n" +
+            //    $"{commitMessage}\n" +
+            //    $"```");
 
-            var cliptokChannel = await client.GetChannelAsync(Program.cfgjson.HomeChannel);
-            cliptokChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Connected} Cliptok connected successfully!\n\n" +
-                $"**Version**: `{commitHash}`\n" +
-                $"**Version timestamp**: `{commitTime}`\n**Framework**: `{RuntimeInformation.FrameworkDescription}`\n**Platform**: `{RuntimeInformation.OSDescription}`\n\n" +
-                $"Most recent commit message:\n" +
-                $"```\n" +
-                $"{commitMessage}\n" +
-                $"```");
+//            while (true)
+//            {
+//                await Task.Delay(10000);
+//#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+////                Mutes.CheckMutesAsync();
+////                _modCmds.CheckBansAsync();
+////                _modCmds.CheckRemindersAsync();
+////#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-            while (true)
-            {
-                await Task.Delay(10000);
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Mutes.CheckMutesAsync();
-                _modCmds.CheckBansAsync();
-                _modCmds.CheckRemindersAsync();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-            }
+//            }
         }
 
         async Task MessageCreated(DiscordClient client, MessageCreateEventArgs e)
@@ -266,6 +287,30 @@ namespace Ansu.Bot.EventHandlers
                 embed.AddField("Message link", $"[`Jump to warning`]({messageURL})", true);
 
             await channel.SendMessageAsync($"{Program.cfgjson.Emoji.Denied} Deleted infringing message by {infringingMessage.Author.Mention} in {infringingMessage.Channel.Mention}:", embed);
+        }
+
+
+        async Task GuildCreated(DiscordClient client, GuildCreateEventArgs e)
+        {
+            // todo: setup proper guild settings
+            Guild guild = new Guild();
+            guild.Id = e.Guild.Id;
+            guild.OwnerId = e.Guild.Owner.Id;
+            guild.Configuration = new GuildConfiguration
+            {
+                Moderation = new ModerationOptions
+                {
+                    MassEmojiThreshold = 6,
+                    Blacklist = new List<string>()
+                }
+            };
+            try
+            {
+                await _guildService.SaveGuild(guild).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
         async Task GuildMemberAdded(DiscordClient client, GuildMemberAddEventArgs e)
