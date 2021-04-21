@@ -91,14 +91,6 @@ namespace Ansu.Bot.EventHandlers
             //        Blacklist = new List<string>()
             //    }
             //};
-            //var cliptokChannel = await client.GetChannelAsync(Program.cfgjson.HomeChannel);
-            //cliptokChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Connected} Cliptok connected successfully!\n\n" +
-            //    $"**Version**: `{commitHash}`\n" +
-            //    $"**Version timestamp**: `{commitTime}`\n**Framework**: `{RuntimeInformation.FrameworkDescription}`\n**Platform**: `{RuntimeInformation.OSDescription}`\n\n" +
-            //    $"Most recent commit message:\n" +
-            //    $"```\n" +
-            //    $"{commitMessage}\n" +
-            //    $"```");
 
 //            while (true)
 //            {

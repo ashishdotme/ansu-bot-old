@@ -103,8 +103,8 @@ namespace Ansu
                 cfgjson.WordListList[key].Words = listOutput;
             }
 
-            if (Environment.GetEnvironmentVariable("CLIPTOK_TOKEN") != null)
-                token = Environment.GetEnvironmentVariable("CLIPTOK_TOKEN");
+            if (Environment.GetEnvironmentVariable("ANSU_TOKEN") != null)
+                token = Environment.GetEnvironmentVariable("ANSU_TOKEN");
             else
                 token = cfgjson.Core.Token;
 

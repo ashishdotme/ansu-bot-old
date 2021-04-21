@@ -797,7 +797,7 @@ namespace Ansu.Modules
             }
 
             [Command("restart")]
-            [RequireHomeserverPerm(ServerPermLevel.Admin), Description("Restart the bot. If not under Docker (Cliptok is, dw) this WILL exit instead.")]
+            [RequireHomeserverPerm(ServerPermLevel.Admin), Description("Restart the bot")]
             public async Task Restart(CommandContext ctx)
             {
                 await ctx.RespondAsync("Now restarting bot.");
