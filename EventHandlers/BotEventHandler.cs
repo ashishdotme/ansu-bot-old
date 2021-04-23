@@ -289,16 +289,13 @@ namespace Ansu.Bot.EventHandlers
                 Moderation = new ModerationOptions
                 {
                     MassEmojiThreshold = 6,
-                    Blacklist = new List<string>()
-                }
+                    BanList = new List<string>(),
+                    MuteList = new List<string>(),
+                    UnrestrictedEmojiChannels = new List<ulong>(),
+                    LockdownEnabledChannels = new List<ulong>()
+                }   
             };
-            try
-            {
-                await _guildService.SaveGuild(guild).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-            }
+            await _guildService.SaveGuild(guild).ConfigureAwait(false);
         }
 
         public async Task GuildMemberAdded(DiscordClient client, GuildMemberAddEventArgs e)

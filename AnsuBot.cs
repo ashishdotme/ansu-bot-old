@@ -30,7 +30,6 @@ namespace Ansu.Bot
             _discordClient.GuildMemberUpdated += _botEventHandler.GuildMemberUpdated;
             _discordClient.UserUpdated += _botEventHandler.UserUpdated;
             await _discordClient.ConnectAsync();
-            await Task.Delay(-1);
         }
     }
 }

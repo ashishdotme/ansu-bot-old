@@ -5,16 +5,19 @@ using Ansu.Bot.Service.Models;
 using Ansu.Repository.Interfaces;
 using Ansu.Service.Interfaces;
 using Ansu.Service.Models;
+using Serilog;
 
 namespace Ansu.Bot.Service
 {
     public class GuildService : IGuildService
     {
         private readonly IGuildRepository _guildRepository;
+        private readonly ILogger _logger;
 
-        public GuildService(IGuildRepository guildRepository)
+        public GuildService(IGuildRepository guildRepository, ILogger logger)
         {
             _guildRepository = guildRepository;
+            _logger = logger;
         }
 
         public async Task DeleteGuild(string guildId)
@@ -30,7 +33,17 @@ namespace Ansu.Bot.Service
 
         public async Task SaveGuild(Guild guild)
         {
-            await _guildRepository.SaveGuild(guild).ConfigureAwait(false);
+            try
+            {
+                _logger.Information($"Saving guid settings for {guild.Id}");
+                await _guildRepository.SaveGuild(guild).ConfigureAwait(false);
+                _logger.Information($"Saved guild settings for {guild.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to save guild settings for {guild.Id}");
+                _logger.Error($"Guild settings exception : {ex.Message}");
+            }
         }
     }
 }

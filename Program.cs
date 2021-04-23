@@ -30,6 +30,7 @@ namespace Ansu
     {
         public static ConfigJson cfgjson { get; private set; }
         public static ConnectionMultiplexer redis;
+        public static IDatabase db;
 
         public static void Main(string[] args)
         {
@@ -95,7 +96,6 @@ namespace Ansu
                         StringPrefixes = ansuSettings.Core.Prefixes,
                         EnableDms = false,
                         CaseSensitive = false,
-                        EnableDefaultHelp = false,
                         EnableMentionPrefix = true,
                         IgnoreExtraArguments = true,
                         Services = services.BuildServiceProvider()
@@ -108,6 +108,8 @@ namespace Ansu
 
                     services.AddHostedService<AnsuBot>();
                 });
+
+
     }
 
 }
