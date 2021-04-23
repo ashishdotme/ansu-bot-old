@@ -8,7 +8,7 @@ using Ansu.Repository.Converters;
 using Ansu.Repository.Exceptions;
 using Ansu.Repository.Interfaces;
 using Ansu.Service.Models;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Ansu.Repository
 {
@@ -24,10 +24,30 @@ namespace Ansu.Repository
             _mongoFilter = mongoFilter;
         }
 
-        public Task DeleteGuild(string guildId)
+        public async Task DeleteGuild(ulong guildId)
         {
-            throw new NotImplementedException();
+            var filter = _mongoFilter.CreateFilterDefinition(new GuildContext { Id = guildId });
+            var _guild = await _mongoCustomClient.GetAllItemsAsync(filter).ConfigureAwait(false);
+            if (!_guild.Any())
+            {
+                _logger.Error("Guild not found");
+                throw new NotFoundException(guildId);
+            }
+            await _mongoCustomClient.DeleteOneAsync(filter).ConfigureAwait(false);
         }
+
+        public async Task<Guild> GetGuild(ulong guildId)
+        {
+            var filter = _mongoFilter.CreateFilterDefinition(new GuildContext { Id = guildId });
+            var _guild = await _mongoCustomClient.GetAllItemsAsync(filter).ConfigureAwait(false);
+            if (!_guild.Any())
+            {
+                _logger.Error("Guild not found");
+                throw new NotFoundException(guildId);
+            }
+            return ModelConverter.ToGuild(_guild.First());
+        }
+
 
         public async Task<List<Guild>> GetGuilds(GuildContext filterContext)
         {
@@ -44,16 +64,18 @@ namespace Ansu.Repository
             if (_guild.Any())
             {
                 throw new DuplicateGuildException(guild.Id);
-            }
-            var mongoGuild = ModelConverter.ToMongoModel(guild);
-            try
+            } else
             {
-                await _mongoCustomClient.InsertOneAsync(mongoGuild).ConfigureAwait(false);
+                var mongoGuild = ModelConverter.ToMongoModel(guild);
+                try
+                {
+                    await _mongoCustomClient.InsertOneAsync(mongoGuild).ConfigureAwait(false);
 
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
     }

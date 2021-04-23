@@ -11,6 +11,8 @@ namespace Ansu.Service.Interfaces
 
         Task<List<Guild>> GetAllGuilds();
 
-        Task DeleteGuild(string guildId);
+        Task DeleteGuild(ulong guildId);
+
+        Task<Guild> GetGuild(ulong guildId);
     }
 }

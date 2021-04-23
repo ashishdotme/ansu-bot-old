@@ -20,9 +20,14 @@ namespace Ansu.Bot.Service
             _logger = logger;
         }
 
-        public async Task DeleteGuild(string guildId)
+        public async Task DeleteGuild(ulong guildId)
         {
             await _guildRepository.DeleteGuild(guildId).ConfigureAwait(false);
+        }
+
+        public async Task<Guild> GetGuild(ulong guildId)
+        {
+            return await _guildRepository.GetGuild(guildId).ConfigureAwait(false);
         }
 
         public async Task<List<Guild>> GetAllGuilds()
@@ -35,14 +40,13 @@ namespace Ansu.Bot.Service
         {
             try
             {
-                _logger.Information($"Saving guid settings for {guild.Id}");
                 await _guildRepository.SaveGuild(guild).ConfigureAwait(false);
                 _logger.Information($"Saved guild settings for {guild.Id}");
             }
             catch (Exception ex)
             {
                 _logger.Error($"Failed to save guild settings for {guild.Id}");
-                _logger.Error($"Guild settings exception : {ex.Message}");
+                _logger.Error($"Guild service exception : {ex.Message}");
             }
         }
     }
