@@ -21,6 +21,15 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="MongoDB.Driver" Version="2.12.2" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="Serilog" Version="2.10.0" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
+		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+		<PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
+		<PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
+		<PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
+		<PackageReference Include="Serilog.Exceptions" Version="6.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,12 +42,22 @@
 		<Content Include="Lists/**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<None Update="appsettings.Production.json">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="appsettings.Development.json">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="appsettings.json">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Config\" />
-	  <Folder Include="Config\Models\" />
+	  <Folder Include="Config\Database\" />
 	  <Folder Include="EventHandlers\" />
+	  <Folder Include="Config\Ansu\" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(OS)' != 'Windows_NT' ">
 	  <Exec Command="git rev-parse --short main &gt; &quot;$(OutDir)/CommitHash.txt&quot;&#xD;&#xA;git log --pretty=format:&quot;%25s&quot; -n 1 &gt; &quot;$(OutDir)/CommitMessage.txt&quot;&#xD;&#xA;git log --pretty=format:&quot;%25ci&quot; -n 1 &gt; &quot;$(OutDir)/CommitTime.txt&quot;&#xD;&#xA;" />

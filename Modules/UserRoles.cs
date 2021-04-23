@@ -1,3 +1,4 @@
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -17,14 +18,98 @@ namespace Ansu.Modules
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
 
-    public static class UserRoles
+    [UserRolesPresent]
+    public class UserRoleCmds : BaseCommandModule
     {
-        public static async Task GiveUserRoleAsync(CommandContext ctx, ulong role)
+        private readonly DiscordClient _client;
+
+        public UserRoleCmds(DiscordClient client)
+        {
+            _client = client;
+        }
+
+        [
+            Command("join-insider-dev"),
+            Description("Gives you the Windows Insiders (Dev) role"),
+            HomeServer
+        ]
+        public async Task JoinInsiderDevCmd(CommandContext ctx)
+        {
+            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderDev);
+        }
+
+        [
+            Command("join-insider-beta"),
+            Description("Gives you the Windows Insiders (Beta) role"),
+            HomeServer
+        ]
+        public async Task JoinInsiderBetaCmd(CommandContext ctx)
+        {
+            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderBeta);
+        }
+
+        [
+            Command("join-insider-rp"),
+            Description("Gives you the Windows Insiders (Release Preview) role"),
+            HomeServer
+        ]
+        public async Task JoinInsiderRPCmd(CommandContext ctx)
+        {
+            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderRP);
+        }
+
+        [
+            Command("join-patch-tuesday"),
+            Description("Gives you the 💻 Patch Tuesday role"),
+            HomeServer
+        ]
+        public async Task JoinPatchTuesday(CommandContext ctx)
+        {
+            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.PatchTuesday);
+        }
+
+        [
+            Command("keep-me-updated"),
+            Description("Gives you all opt-in roles"),
+            HomeServer
+        ]
+        public async Task KeepMeUpdated(CommandContext ctx)
+        {
+            await GiveUserRolesAsync(ctx, x => true);
+        }
+
+        [
+            Command("leave-insiders"),
+            Description("Removes you from Insider roles"),
+            Aliases("leave-insider"),
+            HomeServer
+        ]
+        public async Task LeaveInsiders(CommandContext ctx)
+        {
+            foreach (ulong roleId in new ulong[] { Program.cfgjson.UserRoles.InsiderDev, Program.cfgjson.UserRoles.InsiderBeta, Program.cfgjson.UserRoles.InsiderRP })
+            {
+                await RemoveUserRoleAsync(ctx, roleId);
+            }
+
+            await ctx.Member.SendMessageAsync("Sad to see you go but if you ever want to rejoin Insiders and continue getting notifications type `!join-insider-dev` in <#740272437719072808> channel");
+        }
+
+        [
+            Command("dont-keep-me-updated"),
+            Description("Takes away from you all opt-in roles"),
+            HomeServer
+        ]
+        public async Task DontKeepMeUpdated(CommandContext ctx)
+        {
+            await RemoveUserRolesAsync(ctx, x => true);
+        }
+
+        public async Task GiveUserRoleAsync(CommandContext ctx, ulong role)
         {
             await GiveUserRolesAsync(ctx, x => (ulong)x.GetValue(Program.cfgjson.UserRoles, null) == role);
         }
 
-        public static async Task GiveUserRolesAsync(CommandContext ctx, Func<System.Reflection.PropertyInfo, bool> predicate)
+        public async Task GiveUserRolesAsync(CommandContext ctx, Func<System.Reflection.PropertyInfo, bool> predicate)
         {
             if (Program.cfgjson.UserRoles is null)
             {
@@ -32,7 +117,7 @@ namespace Ansu.Modules
                 return;
             }
 
-            DiscordGuild guild = await Program.discord.GetGuildAsync(ctx.Guild.Id);
+            DiscordGuild guild = await _client.GetGuildAsync(ctx.Guild.Id);
             String response = "";
             System.Reflection.PropertyInfo[] roleIds = Program.cfgjson.UserRoles.GetType().GetProperties().Where(predicate).ToArray();
             for (int i = 0; i < roleIds.Length; i++)
@@ -53,13 +138,13 @@ namespace Ansu.Modules
             await ctx.Channel.SendMessageAsync($"{ctx.User.Mention} has joined the {response} role{(roleIds.Length != 1 ? "s" : String.Empty)}.");
         }
 
-        public static async Task RemoveUserRoleAsync(CommandContext ctx, ulong role)
+        public async Task RemoveUserRoleAsync(CommandContext ctx, ulong role)
         {
             // In case we ever decide to have indivdual commands to remove roles.
             await RemoveUserRolesAsync(ctx, x => (ulong)x.GetValue(Program.cfgjson.UserRoles, null) == role);
         }
 
-        public static async Task RemoveUserRolesAsync(CommandContext ctx, Func<System.Reflection.PropertyInfo, bool> predicate)
+        public async Task RemoveUserRolesAsync(CommandContext ctx, Func<System.Reflection.PropertyInfo, bool> predicate)
         {
             if (Program.cfgjson.UserRoles is null)
             {
@@ -67,7 +152,7 @@ namespace Ansu.Modules
                 return;
             }
 
-            DiscordGuild guild = await Program.discord.GetGuildAsync(ctx.Guild.Id);
+            DiscordGuild guild = await _client.GetGuildAsync(ctx.Guild.Id);
             System.Reflection.PropertyInfo[] roleIds = Program.cfgjson.UserRoles.GetType().GetProperties().Where(predicate).ToArray();
             foreach (System.Reflection.PropertyInfo roleId in roleIds)
             {
@@ -83,86 +168,6 @@ namespace Ansu.Modules
             {
                 // Not an important exception to note.
             }
-        }
-
-    }
-    [UserRolesPresent]
-    public class UserRoleCmds : BaseCommandModule
-    {
-        [
-            Command("join-insider-dev"),
-            Description("Gives you the Windows Insiders (Dev) role"),
-            HomeServer
-        ]
-        public async Task JoinInsiderDevCmd(CommandContext ctx)
-        {
-            await UserRoles.GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderDev);
-        }
-
-        [
-            Command("join-insider-beta"),
-            Description("Gives you the Windows Insiders (Beta) role"),
-            HomeServer
-        ]
-        public async Task JoinInsiderBetaCmd(CommandContext ctx)
-        {
-            await UserRoles.GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderBeta);
-        }
-
-        [
-            Command("join-insider-rp"),
-            Description("Gives you the Windows Insiders (Release Preview) role"),
-            HomeServer
-        ]
-        public async Task JoinInsiderRPCmd(CommandContext ctx)
-        {
-            await UserRoles.GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderRP);
-        }
-
-        [
-            Command("join-patch-tuesday"),
-            Description("Gives you the 💻 Patch Tuesday role"),
-            HomeServer
-        ]
-        public async Task JoinPatchTuesday(CommandContext ctx)
-        {
-            await UserRoles.GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.PatchTuesday);
-        }
-
-        [
-            Command("keep-me-updated"),
-            Description("Gives you all opt-in roles"),
-            HomeServer
-        ]
-        public async Task KeepMeUpdated(CommandContext ctx)
-        {
-            await UserRoles.GiveUserRolesAsync(ctx, x => true);
-        }
-
-        [
-            Command("leave-insiders"),
-            Description("Removes you from Insider roles"),
-            Aliases("leave-insider"),
-            HomeServer
-        ]
-        public async Task LeaveInsiders(CommandContext ctx)
-        {
-            foreach (ulong roleId in new ulong[] { Program.cfgjson.UserRoles.InsiderDev, Program.cfgjson.UserRoles.InsiderBeta, Program.cfgjson.UserRoles.InsiderRP })
-            {
-                await UserRoles.RemoveUserRoleAsync(ctx, roleId);
-            }
-
-            await ctx.Member.SendMessageAsync("Sad to see you go but if you ever want to rejoin Insiders and continue getting notifications type `!join-insider-dev` in <#740272437719072808> channel");
-        }
-
-        [
-            Command("dont-keep-me-updated"),
-            Description("Takes away from you all opt-in roles"),
-            HomeServer
-        ]
-        public async Task DontKeepMeUpdated(CommandContext ctx)
-        {
-            await UserRoles.RemoveUserRolesAsync(ctx, x => true);
         }
     }
 }

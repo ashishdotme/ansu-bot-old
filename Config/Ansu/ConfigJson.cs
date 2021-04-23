@@ -44,25 +44,25 @@ namespace Ansu
     public struct ConfigJson
     {
         [JsonProperty("name")]
-        public string Name { get; private set; }
+        public string Name { get;  set; }
 
         [JsonProperty("core")]
-        public CoreConfig Core { get; private set; }
+        public CoreConfig Core { get;  set; }
 
         [JsonProperty("redis")]
-        public RedisConfig Redis { get; private set; }
+        public RedisConfig Redis { get;  set; }
 
         [JsonProperty("mongoDB")]
-        public MongoConfig MongoDB { get; private set; }
+        public MongoConfig MongoDB { get;  set; }
 
         [JsonProperty("trialModRole")]
-        public ulong TrialModRole { get; private set; }
+        public ulong TrialModRole { get;  set; }
 
         [JsonProperty("modRole")]
-        public ulong ModRole { get; private set; }
+        public ulong ModRole { get;  set; }
 
         [JsonProperty("adminRole")]
-        public ulong AdminRole { get; private set; }
+        public ulong AdminRole { get;  set; }
 
         [JsonProperty("logChannel")]
         public ulong LogChannel { get; set; }
@@ -86,59 +86,59 @@ namespace Ansu
         public Dictionary<string, int> AutoMuteThresholds { get; set; }
 
         [JsonProperty("userRoles")]
-        public UserRoleConfig UserRoles { get; private set; }
+        public UserRoleConfig UserRoles { get;  set; }
 
         [JsonProperty("restrictedWords")]
-        public List<string> RestrictedWords { get; private set; }
+        public List<string> RestrictedWords { get;  set; }
 
         [JsonProperty("massMentionThreshold")]
-        public int MassMentionThreshold { get; private set; }
+        public int MassMentionThreshold { get;  set; }
 
         [JsonProperty("massEmojiThreshold")]
-        public int MassEmojiThreshold { get; private set; }
+        public int MassEmojiThreshold { get;  set; }
 
         [JsonProperty("tierRoles")]
-        public List<ulong> TierRoles { get; private set; }
+        public List<ulong> TierRoles { get;  set; }
 
         [JsonProperty("inviteExclusion")]
-        public List<string> InviteExclusion { get; private set; }
+        public List<string> InviteExclusion { get;  set; }
 
         [JsonProperty("inviteTierRequirement")]
-        public int InviteTierRequirement { get; private set; }
+        public int InviteTierRequirement { get;  set; }
 
         [JsonProperty("unrestrictedEmojiChannels")]
-        public List<ulong> UnrestrictedEmojiChannels { get; private set; }
+        public List<ulong> UnrestrictedEmojiChannels { get;  set; }
 
         [JsonProperty("wordLists")]
-        public Dictionary<string, WordListJson> WordListList { get; private set; }
+        public Dictionary<string, WordListJson> WordListList { get;  set; }
 
         [JsonProperty("lockdownEnabledChannels")]
-        public List<ulong> LockdownEnabledChannels { get; private set; }
+        public List<ulong> LockdownEnabledChannels { get;  set; }
 
         [JsonProperty("heartosoftId")]
-        public ulong HeartosoftId { get; private set; }
+        public ulong HeartosoftId { get;  set; }
 
         [JsonProperty("noHeartosoftId")]
-        public ulong NoHeartosoftId { get; private set; }
+        public ulong NoHeartosoftId { get;  set; }
 
         [JsonProperty("restrictedHeartosoftPhrases")]
-        public List<string> RestrictedHeartosoftPhrases { get; private set; }
+        public List<string> RestrictedHeartosoftPhrases { get;  set; }
 
         [JsonProperty("autoDehoistCharacters")]
-        public List<char> AutoDehoistCharacters { get; private set; }
+        public List<char> AutoDehoistCharacters { get;  set; }
 
         [JsonProperty("investigationsChannel")]
-        public ulong InvestigationsChannelId { get; private set; }
+        public ulong InvestigationsChannelId { get;  set; }
 
     }
 
     public class WordListJson
     {
         [JsonProperty("wholeWord")]
-        public bool WholeWord { get; private set; }
+        public bool WholeWord { get;  set; }
 
         [JsonProperty("reason")]
-        public string Reason { get; private set; }
+        public string Reason { get;  set; }
 
         public string[] Words { get; set; }
     }
@@ -192,49 +192,49 @@ namespace Ansu
     public class CoreConfig
     {
         [JsonProperty("token")]
-        public string Token { get; private set; }
+        public string Token { get;  set; }
 
         [JsonProperty("prefixes")]
-        public List<string> Prefixes { get; private set; }
+        public List<string> Prefixes { get;  set; }
     }
 
     public class RedisConfig
     {
         [JsonProperty("host")]
-        public string Host { get; private set; }
+        public string Host { get;  set; }
 
         [JsonProperty("password")]
-        public string Password { get; private set; }
+        public string Password { get;  set; }
 
         [JsonProperty("port")]
-        public string Port { get; private set; }
+        public string Port { get;  set; }
     }
 
     public class MongoConfig
     {
         [JsonProperty("connectionString")]
-        public string ConnectionString { get; private set; }
+        public string ConnectionString { get;  set; }
 
         [JsonProperty("database")]
-        public string Database { get; private set; }
+        public string Database { get;  set; }
 
         [JsonProperty("collection")]
-        public string Collection { get; private set; }
+        public string Collection { get;  set; }
     }
 
     public class UserRoleConfig
     {
         [JsonProperty("insiderDev")]
-        public ulong InsiderDev { get; private set; }
+        public ulong InsiderDev { get;  set; }
 
         [JsonProperty("insiderBeta")]
-        public ulong InsiderBeta { get; private set; }
+        public ulong InsiderBeta { get;  set; }
 
         [JsonProperty("insiderRP")]
-        public ulong InsiderRP { get; private set; }
+        public ulong InsiderRP { get;  set; }
 
         [JsonProperty("patchTuesday")]
-        public ulong PatchTuesday { get; private set; }
+        public ulong PatchTuesday { get;  set; }
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using Ansu.Bot.EventHandlers;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -69,6 +70,12 @@ namespace Ansu.Modules
 
     public class Warnings : BaseCommandModule
     {
+        private readonly DiscordClient _client;
+
+        public Warnings(DiscordClient client)
+        {
+            _client = client;
+        }
 
         public static DiscordRole GetRole(DiscordGuild guild, ulong roleID)
         {
@@ -113,9 +120,9 @@ namespace Ansu.Modules
                 return ServerPermLevel.nothing;
         }
 
-        public static async Task<DiscordEmbed> FancyWarnEmbedAsync(UserWarning warning, bool detailed = false, int colour = 0xFEC13D, bool showTime = true)
+        public async Task<DiscordEmbed> FancyWarnEmbedAsync(UserWarning warning, bool detailed = false, int colour = 0xFEC13D, bool showTime = true)
         {
-            DiscordUser targetUser = await Program.discord.GetUserAsync(warning.TargetUserId);
+            DiscordUser targetUser = await _client.GetUserAsync(warning.TargetUserId);
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
             .WithDescription($"**Reason**\n{warning.WarnReason}")
             .WithColor(new DiscordColor(colour))
@@ -141,7 +148,7 @@ namespace Ansu.Modules
             return embed;
         }
 
-        public static async Task<UserWarning> GiveWarningAsync(DiscordUser targetUser, DiscordUser modUser, string reason, string contextLink, DiscordChannel channel)
+        public async Task<UserWarning> GiveWarningAsync(DiscordUser targetUser, DiscordUser modUser, string reason, string contextLink, DiscordChannel channel)
         {
             DiscordGuild guild = channel.Guild;
             ulong warningId = (ulong)Program.db.StringGet("totalWarnings");
@@ -212,7 +219,7 @@ namespace Ansu.Modules
             if (toMuteHours > 0)
             {
                 DiscordMember member = await guild.GetMemberAsync(targetUser.Id);
-                await Mutes.MuteUserAsync(member, $"Automatic mute after {warnsSinceThreshold} warnings in the past {Program.cfgjson.WarningDaysThreshold} days.", modUser.Id, guild, channel, TimeSpan.FromHours(toMuteHours));
+                //await Mutes.MuteUserAsync(member, $"Automatic mute after {warnsSinceThreshold} warnings in the past {Program.cfgjson.WarningDaysThreshold} days.", modUser.Id, guild, channel, TimeSpan.FromHours(toMuteHours));
             }
 
 

@@ -18,17 +18,19 @@ namespace Ansu.Modules
     {
         public const char dehoistCharacter = '\u17b5';
         private readonly IRedisClient _redisClient;
+        private readonly DiscordClient _client;
 
-        public ModCmds(IRedisClient redisClient)
+        public ModCmds(IRedisClient redisClient, DiscordClient client)
         {
             _redisClient = redisClient;
+            _client = client;
         }
 
-        public static async Task<bool> BanFromServerAsync(ulong targetUserId, string reason, ulong moderatorId, DiscordGuild guild, int deleteDays = 7, DiscordChannel channel = null, TimeSpan banDuration = default, bool appealable = false)
+        public async Task<bool> BanFromServerAsync(ulong targetUserId, string reason, ulong moderatorId, DiscordGuild guild, int deleteDays = 7, DiscordChannel channel = null, TimeSpan banDuration = default, bool appealable = false)
         {
-            DiscordUser naughtyUser = await Program.discord.GetUserAsync(targetUserId);
+            DiscordUser naughtyUser = await _client.GetUserAsync(targetUserId);
             bool permaBan = false;
-            DiscordChannel logChannel = await Program.discord.GetChannelAsync(Program.cfgjson.LogChannel);
+            DiscordChannel logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
             DiscordRole mutedRole = guild.GetRole(Program.cfgjson.MutedRole);
             DateTime? expireTime = DateTime.Now + banDuration;
             DiscordMember moderator = await guild.GetMemberAsync(moderatorId);
@@ -94,13 +96,13 @@ namespace Ansu.Modules
 
         }
 
-        public static async Task UnbanFromServerAsync(DiscordGuild targetGuild, ulong targetUserId)
+        public async Task UnbanFromServerAsync(DiscordGuild targetGuild, ulong targetUserId)
         {
-            DiscordChannel logChannel = await Program.discord.GetChannelAsync(Program.cfgjson.LogChannel);
+            DiscordChannel logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
 
             try
             {
-                DiscordUser user = await Program.discord.GetUserAsync(targetUserId);
+                DiscordUser user = await _client.GetUserAsync(targetUserId);
                 await targetGuild.UnbanMemberAsync(user, "Temporary ban expired");
             }
             catch
@@ -114,7 +116,7 @@ namespace Ansu.Modules
 
         public async Task<bool> CheckBansAsync()
         {
-            DiscordChannel logChannel = await Program.discord.GetChannelAsync(Program.cfgjson.LogChannel);
+            DiscordChannel logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
             Dictionary<string, MemberPunishment> banList = Program.db.HashGetAll("bans").ToDictionary(
                 x => x.Name.ToString(),
                 x => JsonConvert.DeserializeObject<MemberPunishment>(x.Value)
@@ -128,10 +130,10 @@ namespace Ansu.Modules
                 foreach (KeyValuePair<string, MemberPunishment> entry in banList)
                 {
                     MemberPunishment banEntry = entry.Value;
-                    DiscordGuild targetGuild = await Program.discord.GetGuildAsync(banEntry.ServerId);
+                    DiscordGuild targetGuild = await _client.GetGuildAsync(banEntry.ServerId);
                     if (DateTime.Now > banEntry.ExpireTime)
                     {
-                        targetGuild = await Program.discord.GetGuildAsync(banEntry.ServerId);
+                        targetGuild = await _client.GetGuildAsync(banEntry.ServerId);
                         await UnbanFromServerAsync(targetGuild, banEntry.MemberId);
                         success = true;
 
@@ -480,7 +482,7 @@ namespace Ansu.Modules
         [HomeServer, RequireHomeserverPerm(ServerPermLevel.Mod), RequirePermissions(Permissions.BanMembers)]
         public async Task UnmuteCmd(CommandContext ctx, DiscordUser targetUser)
         {
-            DiscordChannel logChannel = await Program.discord.GetChannelAsync(Program.cfgjson.LogChannel);
+            DiscordChannel logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
 
             if ((await Program.db.HashExistsAsync("bans", targetUser.Id)))
             {
@@ -588,9 +590,9 @@ namespace Ansu.Modules
             return dehoistCharacter + origName;
         }
 
-        public async static Task<bool> UnbanUserAsync(DiscordGuild guild, DiscordUser target)
+        public async Task<bool> UnbanUserAsync(DiscordGuild guild, DiscordUser target)
         {
-            DiscordChannel logChannel = await Program.discord.GetChannelAsync(Program.cfgjson.LogChannel);
+            DiscordChannel logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
             try
             {
                 await guild.UnbanMemberAsync(target);
@@ -605,9 +607,9 @@ namespace Ansu.Modules
             return true;
         }
 
-        public async static Task KickAndLogAsync(DiscordMember target, string reason, DiscordMember moderator)
+        public async Task KickAndLogAsync(DiscordMember target, string reason, DiscordMember moderator)
         {
-            DiscordChannel logChannel = await Program.discord.GetChannelAsync(Program.cfgjson.LogChannel);
+            DiscordChannel logChannel = await _client.GetChannelAsync(Program.cfgjson.LogChannel);
             await target.RemoveAsync(reason);
             await logChannel.SendMessageAsync($"{Program.cfgjson.Emoji.Ejected} <@{target.Id}> was kicked by `{moderator.Username}#{moderator.Discriminator}` (`{moderator.Id}`).\nReason: **{reason}**");
         }
@@ -686,14 +688,14 @@ namespace Ansu.Modules
             bool success = false;
             foreach (var reminder in await _redisClient.GetListAt<Reminder>("reminders", 0, -1))
             {
-                var guild = await Program.discord.GetGuildAsync(Program.cfgjson.ServerID);
+                var guild = await _client.GetGuildAsync(Program.cfgjson.ServerID);
                 if (reminder.ReminderTime <= DateTime.Now)
                 {
-                    var user = await Program.discord.GetUserAsync(reminder.UserID);
+                    var user = await _client.GetUserAsync(reminder.UserID);
                     DiscordChannel channel = null;
                     try
                     {
-                        channel = await Program.discord.GetChannelAsync(reminder.ChannelID);
+                        channel = await _client.GetChannelAsync(reminder.ChannelID);
                     }
                     catch
                     {
@@ -704,11 +706,11 @@ namespace Ansu.Modules
                         var member = await guild.GetMemberAsync(reminder.UserID);
                         if (Warnings.GetPermLevel(member) >= ServerPermLevel.TrialMod)
                         {
-                            channel = await Program.discord.GetChannelAsync(Program.cfgjson.HomeChannel);
+                            channel = await _client.GetChannelAsync(Program.cfgjson.HomeChannel);
                         }
                         else
                         {
-                            channel = await Program.discord.GetChannelAsync(240528256292356096);
+                            channel = await _client.GetChannelAsync(240528256292356096);
                         }
                     }
 
@@ -825,7 +827,7 @@ namespace Ansu.Modules
             {
                 var msg = await ctx.RespondAsync("Checking for pending unmutes and unbans...");
                 bool bans = await _modCmds.CheckBansAsync();
-                bool mutes = await Mutes.CheckMutesAsync(true);
+                bool mutes = true;
                 bool reminders = await _modCmds.CheckRemindersAsync();
                 await msg.ModifyAsync($"Unban check result: `{bans.ToString()}`\nUnmute check result: `{mutes.ToString()}`\nReminders check result: `{reminders}`");
             }
