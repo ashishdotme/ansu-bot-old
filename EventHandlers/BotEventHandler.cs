@@ -27,6 +27,7 @@ namespace Ansu.Bot.EventHandlers
         private readonly IRedisClient _redisClient;
         private readonly IGuildService _guildService;
         private readonly ModCmds _modCmds;
+        private readonly MuteCmds _muteCmds;
         public static DiscordChannel logChannel;
         public static DiscordChannel badMsgLog;
         readonly ILogger _logger;
@@ -36,11 +37,12 @@ namespace Ansu.Bot.EventHandlers
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-        public BotEventHandler(IRedisClient redisClient, ModCmds modCmds, DiscordClient client, IGuildService guildService, Warnings warnings, ILogger logger)
+        public BotEventHandler(IRedisClient redisClient, ModCmds modCmds, DiscordClient client, IGuildService guildService, Warnings warnings, ILogger logger, MuteCmds muteCmds)
         {
             _redisClient = redisClient;
             _guildService = guildService;
             _modCmds = modCmds;
+            _muteCmds = muteCmds;
             _logger = logger;
             _warnings = warnings;
             _client = client;
@@ -88,16 +90,13 @@ namespace Ansu.Bot.EventHandlers
             //    }
             //};
 
-//            while (true)
-//            {
-//                await Task.Delay(10000);
-//#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-////                Mutes.CheckMutesAsync();
-////                _modCmds.CheckBansAsync();
-////                _modCmds.CheckRemindersAsync();
-////#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-//            }
+            //while (true)
+            //{
+            //    await Task.Delay(10000);
+            //    //_muteCmds.CheckMutesAsync();
+            //    //_modCmds.CheckBansAsync();
+            //    _modCmds.CheckRemindersAsync();
+            //}
         }
 
         public async Task MessageCreated(DiscordClient client, MessageCreateEventArgs e)

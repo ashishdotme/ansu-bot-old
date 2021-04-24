@@ -9,6 +9,8 @@ namespace Ansu.Repository.Interfaces
     {
         Task SaveGuild(Guild guildModel);
 
+        Task UpdateGuild(Guild guildModel);
+
         Task<List<Guild>> GetGuilds(GuildContext guildContext);
 
         Task DeleteGuild(ulong guildId);

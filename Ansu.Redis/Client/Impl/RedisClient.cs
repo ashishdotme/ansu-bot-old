@@ -147,7 +147,20 @@ namespace Ansu.Redis.Client.Impl
                 // log error
                 return false;
             }
-            
+        }
+
+        public async Task<bool> RemoveHash(string key, string hash)
+        {
+            try
+            {
+                var database = _connectionMultiplexer.GetDatabase(_database);
+                return await database.HashDeleteAsync(key, hash);
+            }
+            catch (Exception e)
+            {
+                // log error
+                return false;
+            }
         }
 
         public async Task<bool> KeyExistsInRedis(string key)

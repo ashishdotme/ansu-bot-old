@@ -13,11 +13,13 @@ namespace Ansu.Bot
     {
         private readonly DiscordClient _discordClient;
         private readonly BotEventHandler _botEventHandler;
+        private readonly ModCmds _modCmds;
 
-        public AnsuBot(DiscordClient discordClient, BotEventHandler botEventHandler)
+        public AnsuBot(DiscordClient discordClient, BotEventHandler botEventHandler, ModCmds modCmds)
         {
             _discordClient = discordClient;
             _botEventHandler = botEventHandler;
+            _modCmds = modCmds;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,6 +32,13 @@ namespace Ansu.Bot
             _discordClient.GuildMemberUpdated += _botEventHandler.GuildMemberUpdated;
             _discordClient.UserUpdated += _botEventHandler.UserUpdated;
             await _discordClient.ConnectAsync();
+            while (true)
+            {
+                await Task.Delay(10000);
+                //_muteCmds.CheckMutesAsync();
+                //_modCmds.CheckBansAsync();
+                _modCmds.CheckRemindersAsync();
+            }
         }
     }
 }

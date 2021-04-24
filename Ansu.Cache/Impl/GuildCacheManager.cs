@@ -1,10 +1,10 @@
 ﻿
 using System;
 using System.Threading.Tasks;
-using Ansu.Bot.Service.Models;
 using Ansu.Cache.Interfaces;
 using Ansu.Redis.Client.Interfaces;
 using Serilog;
+using Ansu.Bot.Service.Models;
 
 namespace Ansu.Cache.Impl
 {
@@ -19,9 +19,9 @@ namespace Ansu.Cache.Impl
             _logger = logger;
         }
 
-        public async Task ClearCache()
+        public async Task ClearCache(string guildId)
         {
-            await _redisClient.Remove("guilds");
+            await _redisClient.RemoveHash("guilds", guildId);
         }
 
         public async Task<Guild> GetGuild(ulong guildId)

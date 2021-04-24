@@ -16,11 +16,13 @@ namespace Ansu.Repository
     {
         private readonly IMongoCustomClient _mongoCustomClient;
         private readonly IMongoFilter _mongoFilter;
+        private readonly IGuildUpdateDefinitionCreator _guildUpdateDefinitionCreator;
         private readonly ILogger _logger;
 
-        public GuildRepository(IMongoCustomClient mongoCustomClient, IMongoFilter mongoFilter)
+        public GuildRepository(IMongoCustomClient mongoCustomClient, IMongoFilter mongoFilter, IGuildUpdateDefinitionCreator guildUpdateDefinitionCreator)
         {
             _mongoCustomClient = mongoCustomClient;
+            _guildUpdateDefinitionCreator = guildUpdateDefinitionCreator;
             _mongoFilter = mongoFilter;
         }
 
@@ -77,6 +79,18 @@ namespace Ansu.Repository
                 {
                     Console.WriteLine(e);
                 }
+            }
+        }
+
+        public async Task UpdateGuild(Guild guild)
+        {
+            var filter = _mongoFilter.CreateFilterDefinition(new GuildContext { Id = guild.Id });
+            var update = _guildUpdateDefinitionCreator.CreateUpdateDefinition(guild);
+            var result = await _mongoCustomClient.UpdateOneAsync(filter, update, null);
+            if (result.IsAcknowledged == false || result.MatchedCount == 0)
+            {
+                _logger.Error($"Guild {guild.Id} not found");
+                throw new DuplicateGuildException(guild.Id);
             }
         }
     }

@@ -10,6 +10,6 @@ namespace Ansu.Cache.Interfaces
 
         Task SaveGuild(Guild guild);
 
-        Task ClearCache();
+        Task ClearCache(string guildId);
     }
 }

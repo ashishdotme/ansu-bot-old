@@ -61,12 +61,14 @@ namespace Ansu
                         Collection = ansuSettings.MongoDB.Collection
                     })
                     .AddTransient<ModCmds>()
+                    .AddTransient<MuteCmds>()
                     .AddTransient<Warnings>()
                     .AddTransient<BotEventHandler>()
                     .AddTransient<IRedisClient, RedisClient>()
                     .AddTransient<IGuildRepository, GuildRepository>()
                     .AddTransient<IGuildService, GuildService>()
                     .AddTransient<IGuildCacheManager, GuildCacheManager>()
+                    .AddTransient<IGuildUpdateDefinitionCreator, GuildUpdateDefinitionCreator>()
                     .AddMongoCustomClient()
                     .AddLogging()
                     .AddTransient<IMongoFilter, MongoFilter>();

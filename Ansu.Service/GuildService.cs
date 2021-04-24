@@ -59,7 +59,26 @@ namespace Ansu.Bot.Service
                 _logger.Error($"Guild service exception : {ex.Message}");
             } finally
             {
-                await _guildCacheManager.ClearCache();
+                await _guildCacheManager.ClearCache(guild.Id.ToString());
+            }
+        }
+
+
+        public async Task UpdateGuild(Guild guild)
+        {
+            try
+            {
+                await _guildRepository.UpdateGuild(guild).ConfigureAwait(false);
+                _logger.Information($"Updated guild settings for {guild.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to update guild settings for {guild.Id}");
+                _logger.Error($"Guild service exception : {ex.Message}");
+            }
+            finally
+            {
+                await _guildCacheManager.ClearCache(guild.Id.ToString());
             }
         }
     }

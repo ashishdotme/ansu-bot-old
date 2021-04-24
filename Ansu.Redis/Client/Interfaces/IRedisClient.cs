@@ -22,6 +22,8 @@ namespace Ansu.Redis.Client.Interfaces
 
         Task<bool> Remove(string key);
 
+        Task<bool> RemoveHash(string key, string hash);
+
         Task<bool> HashExistsInRedis(string key, string hash);
 
         Task<bool> KeyExistsInRedis(string key);

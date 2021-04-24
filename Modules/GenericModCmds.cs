@@ -1,6 +1,7 @@
 ﻿using Ansu.Bot.EventHandlers;
 using Ansu.Redis.Client.Interfaces;
 using Ansu.Service.Interfaces;
+using Ansu.Service.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -637,33 +638,13 @@ namespace Ansu.Modules
 
         }
 
-        public class Reminder
-        {
-            [JsonProperty("userID")]
-            public ulong UserID { get; set; }
-
-            [JsonProperty("channelID")]
-            public ulong ChannelID { get; set; }
-
-            [JsonProperty("messageLink")]
-            public string MessageLink { get; set; }
-
-            [JsonProperty("reminderText")]
-            public string ReminderText { get; set; }
-
-            [JsonProperty("reminderTime")]
-            public DateTime ReminderTime { get; set; }
-
-            [JsonProperty("originalTime")]
-            public DateTime OriginalTime { get; set; }
-        }
 
         [Command("remindme")]
         [Aliases("reminder")]
         [HomeServer, RequireHomeserverPerm(ServerPermLevel.Tier4)]
         public async Task RemindMe(CommandContext ctx, string timetoParse, [RemainingText] string reminder)
         {
-            DateTime t = HumanDateParser.HumanDateParser.Parse(timetoParse);
+            DateTime t = HumanDateParser.HumanDateParser.Parse(timetoParse).ToLocalTime();
             if (t <= DateTime.Now)
             {
                 await ctx.Channel.SendMessageAsync($"{Program.cfgjson.Emoji.Error} Time can't be in the past!");
@@ -677,6 +658,8 @@ namespace Ansu.Modules
 
             var reminderObject = new Reminder()
             {
+                Id = Guid.NewGuid().ToString("N"),
+                ServerID = ctx.Guild.Id,
                 UserID = ctx.User.Id,
                 ChannelID = ctx.Channel.Id,
                 MessageLink = $"https://discord.com/channels/{ctx.Guild.Id}/{ctx.Channel.Id}/{ctx.Message.Id}",
@@ -685,17 +668,21 @@ namespace Ansu.Modules
                 OriginalTime = DateTime.Now
             };
 
-            await _redisClient.PushListRight("reminders", reminderObject);
+            var guild = await _guildService.GetGuild(ctx.Guild.Id);
+            guild.Reminders.Add(reminderObject);
+            await _guildService.UpdateGuild(guild);
             await ctx.Channel.SendMessageAsync($"{Program.cfgjson.Emoji.Success} I'll try my best to remind you about that at: `{t}` (In roughly **{Warnings.TimeToPrettyFormat(t.Subtract(ctx.Message.Timestamp.DateTime), false)}**)");
         }
 
         public async Task<bool> CheckRemindersAsync(bool includeRemutes = false)
         {
             bool success = false;
-            foreach (var reminder in await _redisClient.GetListAt<Reminder>("reminders", 0, -1))
+            var guilds = await _guildService.GetAllGuilds();
+            var reminders = guilds.Select(x => x.Reminders).ToList().First();
+            foreach (var reminder in reminders)
             {
-                var guild = await _client.GetGuildAsync(Program.cfgjson.ServerID);
-                if (reminder.ReminderTime <= DateTime.Now)
+                var guild = await _client.GetGuildAsync(reminder.ServerID);
+                if (reminder.ReminderTime.ToLocalTime() <= DateTime.Now)
                 {
                     var user = await _client.GetUserAsync(reminder.UserID);
                     DiscordChannel channel = null;
@@ -720,7 +707,11 @@ namespace Ansu.Modules
                         }
                     }
 
-                    await Program.db.ListRemoveAsync("reminders", JsonConvert.SerializeObject(reminder));
+                    var guildData = guilds.Find(x => x.Id == reminder.ServerID);
+                    guildData.Reminders = guildData.Reminders.FindAll(x => x.Id != reminder.Id);
+                    await _guildService.UpdateGuild(guildData);
+
+                    //await Program.db.ListRemoveAsync("reminders", JsonConvert.SerializeObject(reminder));
                     success = true;
 
                     var embed = new DiscordEmbedBuilder()
