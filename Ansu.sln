@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ansu.Repository", "Ansu.Rep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ansu.Service", "Ansu.Service\Ansu.Service.csproj", "{3FE3B3C1-3171-465D-A855-B2C8388AF88B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ansu.Cache", "Ansu.Cache\Ansu.Cache.csproj", "{8873EE6A-6DE9-47A3-AB4F-554230B5C44E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{3FE3B3C1-3171-465D-A855-B2C8388AF88B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FE3B3C1-3171-465D-A855-B2C8388AF88B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FE3B3C1-3171-465D-A855-B2C8388AF88B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8873EE6A-6DE9-47A3-AB4F-554230B5C44E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8873EE6A-6DE9-47A3-AB4F-554230B5C44E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8873EE6A-6DE9-47A3-AB4F-554230B5C44E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8873EE6A-6DE9-47A3-AB4F-554230B5C44E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

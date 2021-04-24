@@ -27,12 +27,16 @@ namespace Ansu.Redis.Client.Impl
             await this.Set(key, value, Convert.ToInt32(_redisSettings.Timeout));
         }
 
-        public async Task SetHash<T>(string key, string hash, bool value)
+        public async Task SetHash<T>(string key, string hash, T value)
         {
             try
             {
+                if (object.Equals(value, default(T)))
+                {
+                    return;
+                }
                 var database = _connectionMultiplexer.GetDatabase(_database);
-                await database.HashSetAsync(key, hash, value);
+                await database.HashSetAsync(key, hash, JsonConvert.SerializeObject(value));
 
             }
             catch (Exception e)

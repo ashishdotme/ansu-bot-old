@@ -1,10 +1,12 @@
 ﻿using Ansu.Bot.EventHandlers;
 using Ansu.Redis.Client.Interfaces;
+using Ansu.Service.Interfaces;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
+using Serilog;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -18,12 +20,16 @@ namespace Ansu.Modules
     {
         public const char dehoistCharacter = '\u17b5';
         private readonly IRedisClient _redisClient;
+        private readonly IGuildService _guildService;
         private readonly DiscordClient _client;
+        private readonly ILogger _logger;
 
-        public ModCmds(IRedisClient redisClient, DiscordClient client)
+        public ModCmds(IRedisClient redisClient, DiscordClient client, IGuildService guildService, ILogger logger)
         {
             _redisClient = redisClient;
             _client = client;
+            _guildService = guildService;
+            _logger = logger;
         }
 
         public async Task<bool> BanFromServerAsync(ulong targetUserId, string reason, ulong moderatorId, DiscordGuild guild, int deleteDays = 7, DiscordChannel channel = null, TimeSpan banDuration = default, bool appealable = false)

@@ -23,6 +23,8 @@ using ILogger = Serilog.ILogger;
 using Serilog.Exceptions;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Ansu.Cache.Interfaces;
+using Ansu.Cache.Impl;
 
 namespace Ansu
 {
@@ -64,6 +66,7 @@ namespace Ansu
                     .AddTransient<IRedisClient, RedisClient>()
                     .AddTransient<IGuildRepository, GuildRepository>()
                     .AddTransient<IGuildService, GuildService>()
+                    .AddTransient<IGuildCacheManager, GuildCacheManager>()
                     .AddMongoCustomClient()
                     .AddLogging()
                     .AddTransient<IMongoFilter, MongoFilter>();

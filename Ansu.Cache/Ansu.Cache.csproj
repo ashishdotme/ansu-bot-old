@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Impl\" />
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ansu.Service\Ansu.Service.csproj" />
+    <ProjectReference Include="..\Ansu.Redis\Ansu.Redis.csproj" />
+  </ItemGroup>
+</Project>

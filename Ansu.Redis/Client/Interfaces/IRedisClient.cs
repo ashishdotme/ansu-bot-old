@@ -8,7 +8,7 @@ namespace Ansu.Redis.Client.Interfaces
     {
         Task Set<T>(string key, T Value);
 
-        Task SetHash<T>(string key, string hash, bool value);
+        Task SetHash<T>(string key, string hash, T value);
 
         Task PushListRight<T>(string key, T Value);
 

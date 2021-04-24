@@ -63,6 +63,7 @@ namespace Ansu.Repository
             var _guild = await _mongoCustomClient.GetAllItemsAsync(filter).ConfigureAwait(false);
             if (_guild.Any())
             {
+                _logger.Error("Duplicate guild");
                 throw new DuplicateGuildException(guild.Id);
             } else
             {
