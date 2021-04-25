@@ -25,6 +25,12 @@ using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using Ansu.Cache.Interfaces;
 using Ansu.Cache.Impl;
+using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity;
+using DSharpPlus.VoiceNext;
+using System.Reflection;
+using Ansu.Bot.Modules.Utility;
 
 namespace Ansu
 {
@@ -106,11 +112,27 @@ namespace Ansu
                         Services = services.BuildServiceProvider()
                     });
 
+
+                    var interactivityService = discord.UseInteractivity(new InteractivityConfiguration
+                    {
+                        PaginationBehaviour = PaginationBehaviour.WrapAround,
+                        PaginationDeletion = PaginationDeletion.DeleteMessage,
+                        Timeout = TimeSpan.FromMinutes(2),
+                        PollBehaviour = PollBehaviour.KeepEmojis,
+                    });
+
+                    var voiceService = discord.UseVoiceNext(new VoiceNextConfiguration
+                    {
+                        AudioFormat = AudioFormat.Default,
+                        EnableIncoming = false
+                    });
+
+
                     commands.RegisterCommands<Warnings>();
                     commands.RegisterCommands<MuteCmds>();
                     commands.RegisterCommands<UserRoleCmds>();
                     commands.RegisterCommands<ModCmds>();
-
+                    commands.RegisterCommands<CommonUtilities>();
                     services.AddHostedService<AnsuBot>();
                 });
 

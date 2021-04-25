@@ -33,6 +33,7 @@
 		<PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
 		<PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
 		<PackageReference Include="Serilog.Exceptions" Version="6.1.0" />
+		<PackageReference Include="ColorHelper" Version="1.4.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,6 +62,9 @@
 	  <Folder Include="Config\Database\" />
 	  <Folder Include="EventHandlers\" />
 	  <Folder Include="Config\Ansu\" />
+	  <Folder Include="Setup\" />
+	  <Folder Include="Modules\Utility\" />
+	  <Folder Include="Utils\" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(OS)' != 'Windows_NT' ">
 	  <Exec Command="git rev-parse --short main &gt; &quot;$(OutDir)/CommitHash.txt&quot;&#xD;&#xA;git log --pretty=format:&quot;%25s&quot; -n 1 &gt; &quot;$(OutDir)/CommitMessage.txt&quot;&#xD;&#xA;git log --pretty=format:&quot;%25ci&quot; -n 1 &gt; &quot;$(OutDir)/CommitTime.txt&quot;&#xD;&#xA;" />
