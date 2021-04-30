@@ -13,7 +13,8 @@ namespace Ansu.Repository
 
         public UpdateDefinition<MongoGuild> CreateUpdateDefinition(Guild guild)
         {
-            return Builders<MongoGuild>.Update.Set(x => x.Document.Reminders, guild.Reminders);
+            return Builders<MongoGuild>.Update.Set(x => x.Document.Reminders, guild.Reminders).
+                Set(x => x.Document.Configuration.Moderation.LogChannel, guild.Configuration.Moderation.LogChannel);
         }
     }
 }

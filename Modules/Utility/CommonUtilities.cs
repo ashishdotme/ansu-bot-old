@@ -28,6 +28,11 @@ namespace Ansu.Bot.Modules.Utility
         [Description("Search for a term on dictionary.")]
         public async Task MeaningCommand(CommandContext ctx, [RemainingText][Description("The term you want to search for.")] string term)
         {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                Error(ctx, null, $"Please enter the word");
+            }
+
             var url = $"https://api.dictionaryapi.dev/api/v2/entries/en_US/{term}";
             try
             {

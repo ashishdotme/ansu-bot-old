@@ -31,6 +31,8 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
 using System.Reflection;
 using Ansu.Bot.Modules.Utility;
+using Ansu.Bot.Setup;
+using Ansu.Bot.Modules.Administration;
 
 namespace Ansu
 {
@@ -38,6 +40,7 @@ namespace Ansu
     {
         public static ConfigJson cfgjson { get; private set; }
         public static ConnectionMultiplexer redis;
+        public static InteractivityExtension interactivityService { get; private set; }
         public static IDatabase db;
 
         public static void Main(string[] args)
@@ -70,6 +73,7 @@ namespace Ansu
                     .AddTransient<MuteCmds>()
                     .AddTransient<Warnings>()
                     .AddTransient<BotEventHandler>()
+                    .AddTransient<SetupSettings>()
                     .AddTransient<IRedisClient, RedisClient>()
                     .AddTransient<IGuildRepository, GuildRepository>()
                     .AddTransient<IGuildService, GuildService>()
@@ -127,12 +131,12 @@ namespace Ansu
                         EnableIncoming = false
                     });
 
-
                     commands.RegisterCommands<Warnings>();
                     commands.RegisterCommands<MuteCmds>();
                     commands.RegisterCommands<UserRoleCmds>();
                     commands.RegisterCommands<ModCmds>();
                     commands.RegisterCommands<CommonUtilities>();
+                    commands.RegisterCommands<SetupSettings>();
                     services.AddHostedService<AnsuBot>();
                 });
 

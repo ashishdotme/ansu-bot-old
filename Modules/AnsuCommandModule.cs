@@ -4,6 +4,7 @@ using Ansu.Bot.Utils;
 using ColorHelper;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 namespace Ansu.Bot.Modules
 {
@@ -34,6 +35,15 @@ namespace Ansu.Bot.Modules
                 .WithColor(new DiscordColor(ColorGenerator.GetLightRandomColor<RGB>().ToString()));
 
             return await Embed(ctx, embedBuilder).ConfigureAwait(false);
+        }
+
+        protected DiscordEmbedBuilder EmbedWithTitle(string title)
+        {
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+                .WithTitle(title)
+                .WithColor(DiscordColor.Cyan);
+
+            return builder;
         }
     }
 }
