@@ -41,7 +41,7 @@ namespace Ansu.Bot.Modules
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
                 .WithTitle(title)
-                .WithColor(DiscordColor.Cyan);
+                .WithColor(new DiscordColor(ColorGenerator.GetLightRandomColor<RGB>().ToString()));
 
             return builder;
         }
