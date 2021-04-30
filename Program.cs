@@ -71,6 +71,7 @@ namespace Ansu
                     })
                     .AddTransient<ModCmds>()
                     .AddTransient<MuteCmds>()
+                    .AddTransient<UserRoleCmds>()
                     .AddTransient<Warnings>()
                     .AddTransient<BotEventHandler>()
                     .AddTransient<SetupSettings>()

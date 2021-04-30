@@ -31,6 +31,8 @@ namespace Ansu.Service.Models
 
         public ulong MutedRole { get; set; }
 
+        public ulong VerifiedRole { get; set; }
+
         public ulong LogChannel { get; set; }
 
         public ulong HomeChannel { get; set; }

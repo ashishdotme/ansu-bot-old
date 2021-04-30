@@ -46,15 +46,29 @@ namespace Ansu.Bot.Setup
 
             _currentStep = await NextStep(_currentStep, embed.Build());
 
-            var response = await _ctx.Message.GetNextMessageAsync();
-            if (response.TimedOut)
+            var locChannel = await _ctx.Message.GetNextMessageAsync();
+            if (locChannel.TimedOut)
             {   
                 Error(_ctx, "k", $"Prompt timed out");
                 throw new AnsuBotException("Timed out");
             }
 
-            moderationOptions.LogChannel = ulong.Parse(response.Result.Content.Trim());
+            moderationOptions.LogChannel = ulong.Parse(locChannel.Result.Content.Trim());
 
+            var verifiedRoleEmbed = EmbedWithTitle("Verified Role")
+                .WithFooter(Constants.PROMPT_END_MESSAGE)
+                .WithDescription("Enter verified role ID\n\n");
+
+            _currentStep = await NextStep(_currentStep, verifiedRoleEmbed.Build());
+
+            var verifiedRole = await _ctx.Message.GetNextMessageAsync();
+            if (verifiedRole.TimedOut)
+            {
+                Error(_ctx, "k", $"Prompt timed out");
+                throw new AnsuBotException("Timed out");
+            }
+
+            moderationOptions.VerifiedRole = ulong.Parse(verifiedRole.Result.Content.Trim());
 
             var guild = await _guildService.GetGuild(_ctx.Guild.Id);
             guild.Configuration.Moderation = moderationOptions;
@@ -65,7 +79,7 @@ namespace Ansu.Bot.Setup
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
                    .WithTitle("Bot Settings")
                    .WithDescription("All done!")
-                   .WithColor(new DiscordColor(ColorGenerator.GetLightRandomColor<RGB>().ToString()));
+                   .WithColor(new DiscordColor(ColorGenerator.GetLightRandomColor<HEX>().ToString()));
 
             await _channel.SendMessageAsync(embed: builder.Build());
 

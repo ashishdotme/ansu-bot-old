@@ -1,3 +1,5 @@
+using Ansu.Bot.Modules;
+using Ansu.Service.Interfaces;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -8,134 +10,40 @@ using System.Threading.Tasks;
 
 namespace Ansu.Modules
 {
-    public class UserRolesPresentAttribute : CheckBaseAttribute
-    {
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
-        {
-            return Program.cfgjson.UserRoles != null;
-        }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-    }
 
-    [UserRolesPresent]
-    public class UserRoleCmds : BaseCommandModule
+    public class UserRoleCmds : AnsuCommandModule
     {
         private readonly DiscordClient _client;
+        private readonly IGuildService _guildService;
 
-        public UserRoleCmds(DiscordClient client)
+        public UserRoleCmds(DiscordClient client, IGuildService guildService)
         {
             _client = client;
+            _guildService = guildService;
         }
 
         [
-            Command("join-insider-dev"),
-            Description("Gives you the Windows Insiders (Dev) role"),
-            HomeServer
+            Command("verify"),
+            Description("Gives you the verified role"),
         ]
-        public async Task JoinInsiderDevCmd(CommandContext ctx)
+        public async Task VerifiedRoleCmd(CommandContext ctx)
         {
-            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderDev);
-        }
-
-        [
-            Command("join-insider-beta"),
-            Description("Gives you the Windows Insiders (Beta) role"),
-            HomeServer
-        ]
-        public async Task JoinInsiderBetaCmd(CommandContext ctx)
-        {
-            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderBeta);
-        }
-
-        [
-            Command("join-insider-rp"),
-            Description("Gives you the Windows Insiders (Release Preview) role"),
-            HomeServer
-        ]
-        public async Task JoinInsiderRPCmd(CommandContext ctx)
-        {
-            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.InsiderRP);
-        }
-
-        [
-            Command("join-patch-tuesday"),
-            Description("Gives you the 💻 Patch Tuesday role"),
-            HomeServer
-        ]
-        public async Task JoinPatchTuesday(CommandContext ctx)
-        {
-            await GiveUserRoleAsync(ctx, Program.cfgjson.UserRoles.PatchTuesday);
-        }
-
-        [
-            Command("keep-me-updated"),
-            Description("Gives you all opt-in roles"),
-            HomeServer
-        ]
-        public async Task KeepMeUpdated(CommandContext ctx)
-        {
-            await GiveUserRolesAsync(ctx, x => true);
-        }
-
-        [
-            Command("leave-insiders"),
-            Description("Removes you from Insider roles"),
-            Aliases("leave-insider"),
-            HomeServer
-        ]
-        public async Task LeaveInsiders(CommandContext ctx)
-        {
-            foreach (ulong roleId in new ulong[] { Program.cfgjson.UserRoles.InsiderDev, Program.cfgjson.UserRoles.InsiderBeta, Program.cfgjson.UserRoles.InsiderRP })
+            var guild = await _guildService.GetGuild(ctx.Guild.Id);
+            if(guild.Configuration.Moderation.VerifiedRole == 0)
             {
-                await RemoveUserRoleAsync(ctx, roleId);
+                Error(ctx, null, "Verified role is not set");
             }
-
-            await ctx.Member.SendMessageAsync("Sad to see you go but if you ever want to rejoin Insiders and continue getting notifications type `!join-insider-dev` in <#740272437719072808> channel");
+            await GiveUserRolesAsync(ctx, guild.Configuration.Moderation.VerifiedRole);
         }
 
-        [
-            Command("dont-keep-me-updated"),
-            Description("Takes away from you all opt-in roles"),
-            HomeServer
-        ]
-        public async Task DontKeepMeUpdated(CommandContext ctx)
+        public async Task GiveUserRolesAsync(CommandContext ctx, ulong roleId)
         {
-            await RemoveUserRolesAsync(ctx, x => true);
-        }
-
-        public async Task GiveUserRoleAsync(CommandContext ctx, ulong role)
-        {
-            await GiveUserRolesAsync(ctx, x => (ulong)x.GetValue(Program.cfgjson.UserRoles, null) == role);
-        }
-
-        public async Task GiveUserRolesAsync(CommandContext ctx, Func<System.Reflection.PropertyInfo, bool> predicate)
-        {
-            if (Program.cfgjson.UserRoles is null)
-            {
-                // Config hasn't been updated yet.
-                return;
-            }
-
             DiscordGuild guild = await _client.GetGuildAsync(ctx.Guild.Id);
             String response = "";
-            System.Reflection.PropertyInfo[] roleIds = Program.cfgjson.UserRoles.GetType().GetProperties().Where(predicate).ToArray();
-            for (int i = 0; i < roleIds.Length; i++)
-            {
-                DiscordRole roleToGrant = guild.GetRole((ulong)roleIds[i].GetValue(Program.cfgjson.UserRoles, null));
-                await ctx.Member.GrantRoleAsync(roleToGrant);
-
-                if (roleIds.Length == 1)
-                {
-                    response += roleToGrant.Mention;
-                }
-                else
-                {
-                    response += i == roleIds.Length - 1 ? $"and {roleToGrant.Mention}" : $"{roleToGrant.Mention}{(roleIds.Length != 2 ? "," : String.Empty)} ";
-                }
-            }
-
-            await ctx.Channel.SendMessageAsync($"{ctx.User.Mention} has joined the {response} role{(roleIds.Length != 1 ? "s" : String.Empty)}.");
+            DiscordRole roleToGrant = guild.GetRole(roleId);
+            await ctx.Member.GrantRoleAsync(roleToGrant);
+            response += roleToGrant.Mention;
+            await ctx.Channel.SendMessageAsync($"{ctx.User.Mention} has joined the {response} role.");
         }
 
         public async Task RemoveUserRoleAsync(CommandContext ctx, ulong role)

@@ -42,6 +42,7 @@ namespace Ansu.Bot.Setup
             catch (Exception ex)
             {
                 _logger.Error($"Prompt Exception : {ex.Message}");
+                Error(_ctx, "k", $"Invalid input! Run prompt again");
                 throw new AnsuBotException("Prompt timed out");
             }
             finally

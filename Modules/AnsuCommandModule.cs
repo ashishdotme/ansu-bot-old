@@ -32,7 +32,7 @@ namespace Ansu.Bot.Modules
                 .WithTitle(title)
                 .WithDescription(message)
                 .WithTimestamp(DateTime.Now)
-                .WithColor(new DiscordColor(ColorGenerator.GetLightRandomColor<RGB>().ToString()));
+                .WithColor(new DiscordColor(ColorGenerator.GetRandomColor<HEX>().ToString()));
 
             return await Embed(ctx, embedBuilder).ConfigureAwait(false);
         }
@@ -40,8 +40,8 @@ namespace Ansu.Bot.Modules
         protected DiscordEmbedBuilder EmbedWithTitle(string title)
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
-                .WithTitle(title)
-                .WithColor(new DiscordColor(ColorGenerator.GetLightRandomColor<RGB>().ToString()));
+                .WithColor(new DiscordColor(ColorGenerator.GetRandomColor<HEX>().ToString()))
+                .WithTitle(title);
 
             return builder;
         }
