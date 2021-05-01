@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apt-get update; apt-get install git
 
-COPY *.csproj ./
+COPY */**/*.csproj ./
 RUN dotnet restore
 
 COPY . ./
