@@ -4,9 +4,6 @@ WORKDIR /app
 
 RUN apt-get update; apt-get install git
 
-COPY */**/*.csproj ./
-RUN dotnet restore
-
 COPY . ./
 RUN dotnet build Ansu.Bot/Ansu.Bot.csproj -c Release -o out
 
