@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Ansu.Bot.Service.Models;
 
 namespace Ansu.Cache.Interfaces
 {
     public interface IGuildCacheManager
     {
-        Task<Guild> GetGuild(ulong guildId);
+        Task<T> GetGuild<T>(ulong guildId);
 
-        Task SaveGuild(Guild guild);
+        Task SaveGuild<T>(T guild, ulong guildId);
 
         Task ClearCache(string guildId);
     }

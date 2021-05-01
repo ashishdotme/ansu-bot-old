@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Ansu.Cache.Interfaces;
 using Ansu.Redis.Client.Interfaces;
 using Serilog;
-using Ansu.Bot.Service.Models;
 
 namespace Ansu.Cache.Impl
 {
@@ -24,31 +23,31 @@ namespace Ansu.Cache.Impl
             await _redisClient.RemoveHash("guilds", guildId);
         }
 
-        public async Task<Guild> GetGuild(ulong guildId)
+        public async Task<T> GetGuild<T>(ulong guildId)
         {
             try
             {
-                var guild = await _redisClient.GetHash<Guild>("guilds", guildId.ToString());
-                if (guild != null || guild != default(Guild))
+                var guild = await _redisClient.GetHash<T>("guilds", guildId.ToString());
+                if (guild != null)
                 {
                     return guild;
                 } else
                 {
-                    return default(Guild);
+                    return default(T);
                 }
             }
             catch(Exception ex)
             {
                 _logger.Error($"Redis Exception: {ex.Message}");
-                return default(Guild);
+                return default(T);
             }
         }
 
-        public async Task SaveGuild(Guild guild)
+        public async Task SaveGuild<T>(T guild, ulong guildId)
         {
             try
             {
-                await _redisClient.SetHash<Guild>("guilds", guild.Id.ToString(), guild);
+                await _redisClient.SetHash<T>("guilds", guildId.ToString(), guild);
             }
             catch (Exception ex)
             {

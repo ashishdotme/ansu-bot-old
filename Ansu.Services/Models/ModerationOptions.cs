@@ -5,7 +5,7 @@ namespace Ansu.Service.Models
 {
     public class ModerationOptions
     {
-        internal ModerationOptions()
+        public ModerationOptions()
         {
             BanList = new List<string>();
             MuteList = new List<string>();

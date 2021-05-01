@@ -30,13 +30,13 @@ namespace Ansu.Bot.Service
 
         public async Task<Guild> GetGuild(ulong guildId)
         {
-            var cachedGuild = await _guildCacheManager.GetGuild(guildId);
+            var cachedGuild = await _guildCacheManager.GetGuild<Guild>(guildId);
             if(cachedGuild != null || cachedGuild != default(Guild))
             {
                 return cachedGuild;
             }
             var guild = await _guildRepository.GetGuild(guildId).ConfigureAwait(false);
-            await _guildCacheManager.SaveGuild(guild);
+            await _guildCacheManager.SaveGuild<Guild>(guild, guild.Id);
             return guild;
         }
 

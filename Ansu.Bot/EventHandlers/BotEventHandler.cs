@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using Ansu.Bot.Service.Models;
 using Ansu.Modules;
 using Ansu.Redis.Client.Interfaces;
-using Ansu.Repository.Converters;
-using Ansu.Repository.Models;
 using Ansu.Service.Interfaces;
 using Ansu.Service.Models;
 using DSharpPlus;

@@ -8,7 +8,7 @@ COPY *.csproj ./
 RUN dotnet restore
 
 COPY . ./
-RUN dotnet build -c Release -o out
+RUN dotnet build Ansu.Bot/Ansu.Bot.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/runtime:5.0.5-alpine3.13
 WORKDIR /app

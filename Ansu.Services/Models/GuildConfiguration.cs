@@ -5,7 +5,7 @@ namespace Ansu.Bot.Service.Models
 {
     public sealed class GuildConfiguration
     {
-        internal GuildConfiguration()
+        public GuildConfiguration()
         {
             Moderation = new ModerationOptions();
         }
