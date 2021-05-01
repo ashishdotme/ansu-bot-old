@@ -33,17 +33,20 @@ namespace Ansu.Modules
             {
                 Error(ctx, null, "Verified role is not set");
             }
+            if (guild.Configuration.Moderation.RolesChannel == 0)
+            {
+                Error(ctx, null, "Roles Channel is not set");
+            }
             await GiveUserRolesAsync(ctx, guild.Configuration.Moderation.VerifiedRole);
         }
 
         public async Task GiveUserRolesAsync(CommandContext ctx, ulong roleId)
         {
             DiscordGuild guild = await _client.GetGuildAsync(ctx.Guild.Id);
-            String response = "";
+            var guildSettings = await _guildService.GetGuild(ctx.Guild.Id);
             DiscordRole roleToGrant = guild.GetRole(roleId);
             await ctx.Member.GrantRoleAsync(roleToGrant);
-            response += roleToGrant.Mention;
-            await ctx.Channel.SendMessageAsync($"{ctx.User.Mention} has joined the {response} role.");
+            await ctx.Guild.GetChannel(guildSettings.Configuration.Moderation.RolesChannel).SendMessageAsync($"{ctx.User.Mention} has joined the {roleToGrant.Mention} role.");
         }
 
         public async Task RemoveUserRoleAsync(CommandContext ctx, ulong role)

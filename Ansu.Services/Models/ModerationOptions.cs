@@ -37,6 +37,8 @@ namespace Ansu.Service.Models
 
         public ulong HomeChannel { get; set; }
 
+        public ulong RolesChannel { get; set; }
+
         public ulong InvestigationsChannel { get; set; }
     }
 }
